@@ -1,6 +1,7 @@
 ﻿#! /usr/bin/python
 import os
 import sys
+import time
 
 ## ensure running as root so nmap scan will work
 if not os.geteuid() == 0:
@@ -24,8 +25,9 @@ while targets == "":
 		targets = sys.argv[1];
 
 ## convert target ip/range to string for filenames
+timestr = time.strftime("%Y%m%d-%H%M%S")
 filebase = targets.replace('.','_').replace('/','-');
-filebase = 'nmap_parsed_files/'+filebase + "_";
+filebase = 'nmap_parsed_files/'+timestr+"_"+filebase + "_";
 print filebase;
 
 
@@ -47,16 +49,21 @@ print "\nRunning nmap command:\n %s" % nmapcommand;
 ## Run nmap command
 os.system(nmapcommand);
 
-## Parse results file
+## Parse results file into files for each port/service
 alivecommand = "grep 'Up' "+ filebase +"discoveryServiceScan.gnmap | cut -d \" \" -f 2 >> " + filebase +"aliveIPs.txt";
 os.system(alivecommand);
 
 for port in uports:
 	command = "grep ' " + port +"/open/udp/' "+ filebase +"discoveryServiceScan.gnmap | cut -d \" \" -f 2 >> "+ filebase  + uports[port] +".txt";
 	os.system(command);
+	if os.path.getsize(filebase + uports[port] + '.txt') == 0:
+		remove = 'rm -f ' + filebase + uports[port] + '.txt'
+		os.system(remove);
 
 for port in tports:
 	command = "grep ' " + port +"/open/tcp/' "+ filebase +"discoveryServiceScan.gnmap | cut -d \" \" -f 2 >> "+ filebase + tports[port] +".txt";
 	os.system(command);
-
+	if os.path.getsize(filebase + tports[port] + '.txt') == 0:
+		remove = 'rm -f ' + filebase + tports[port] + '.txt'
+		os.system(remove);
 

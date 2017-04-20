@@ -71,10 +71,14 @@ if __name__ == '__main__':
 
 	#print agentIDs
 
+	print "[ ] Creating subfolder /tmp/ossec_keys"
+	if not os.path.exists("/tmp/ossec_keys"):		
+		subprocess.check_call(['mkdir', "/tmp/ossec_keys"])
+
 	# Parses and decodes the base64 key returned for each agent ID entered in the OSSEC command
 	print "[ ] Creating hostname_client.keys file for each new agent"
 	for agentID in agentIDs:
-		print agentID[0]
+		print "\tExtracting key for " + agentID[1] + " ID: "+ agentID[0]
 		resp = subprocess.check_output(["/var/ossec/bin/manage_agents", "-e", agentID[0]]);
 		key64 = resp.split(":")
 		key = key64[1].decode('base64')
@@ -82,15 +86,18 @@ if __name__ == '__main__':
 		# writes the decoded key data to a separate file for each agent added. file named hostname_client.keys
 		# and saved to /tmp/ossec_keys/
 		
-		print "[ ] Creating subfolder /tmp/ossec_keys"
-		if not os.path.exists("/tmp/ossec_keys"):		
-			subprocess.check_call(['mkdir', "/tmp/ossec_keys"])		
+		
 		filename = "/tmp/ossec_keys/" + agentID[1] + "_client.keys"
 		f = open(filename, 'w')
 		f.write(key + "\n")
 		f.close()
 
-	
+	# Writes all agents in the DB to a file
+	print "[ ] Writing all agents to file /tmp/ossec_keys/all_agents.txt"	
+	allAgents = subprocess.check_output(["/var/ossec/bin/manage_agents", "-l"]);
+	f = open("/tmp/ossec_keys/all_agents.txt", "w")
+	f.write(allAgents)
+	f.close()
 
 
 	#Cleanup

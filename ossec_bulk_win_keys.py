@@ -5,7 +5,8 @@
 
 ### run on OSSEC server, like Security Onion
 
-### OSSEC runs chrooted so must place the bulk file in /var/ossec/tmp/ but reference it with just /tmp/
+### OSSEC runs chrooted so must place the bulk file in /var/ossec/tmp/ but reference it with just /tmp/.
+###  so this script takes the input file and copies it to /var/ossec/tmp.
 
 import os
 import argparse
@@ -81,12 +82,16 @@ if __name__ == '__main__':
 		# writes the decoded key data to a separate file for each agent added. file named hostname_client.keys
 		# and saved to /tmp/ossec_keys/
 		
-		print "Creating subfolder /tmp/ossec_keys"
-		subprocess.check_call(['mkdir', "/tmp/ossec_keys"])		
+		print "[ ] Creating subfolder /tmp/ossec_keys"
+		if not os.path.exists("/tmp/ossec_keys"):		
+			subprocess.check_call(['mkdir', "/tmp/ossec_keys"])		
 		filename = "/tmp/ossec_keys/" + agentID[1] + "_client.keys"
 		f = open(filename, 'w')
 		f.write(key + "\n")
 		f.close()
+
+	
+
 
 	#Cleanup
 	subprocess.check_output(['rm', '/var/ossec/tmp/bulk_clients'])

@@ -1,3 +1,4 @@
+#!/usr/bin/python
 ######
 # script to bulk add Windows OSSEC agents to the server and then pull the keys
 # decode them from base64 and save them each to a separate file called client.keys.

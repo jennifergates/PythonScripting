@@ -21,7 +21,7 @@ if not os.geteuid() == 0:
 # command line arguments
 parser = argparse.ArgumentParser(description='Bulk add and create client.keys files from a list of Windows machines getting OSSEC agents installed.')
 parser.add_argument('path', metavar='path', type=str, 
-                    help='path to file of windows computers')
+                    help='path to file of windows computers. List IP, subnet, or any then a comma, then the hostname. Example: \n 192.168.25.0/24,mycomputer.net or 10.10.10.1,my.computer.net')
 
 args = parser.parse_args()
 
@@ -72,9 +72,9 @@ if __name__ == '__main__':
 
 	#print agentIDs
 
-	print "[ ] Creating subfolder /tmp/ossec_keys"
-	if not os.path.exists("/tmp/ossec_keys"):		
-		subprocess.check_call(['mkdir', "/tmp/ossec_keys"])
+	print "[ ] Creating subfolder ./ossec_keys"
+	if not os.path.exists("./ossec_keys"):		
+		subprocess.check_call(['mkdir', "ossec_keys"])
 
 	# Parses and decodes the base64 key returned for each agent ID entered in the OSSEC command
 	print "[ ] Creating hostname_client.keys file for each new agent"
@@ -85,18 +85,18 @@ if __name__ == '__main__':
 		key = key64[1].decode('base64')
 	
 		# writes the decoded key data to a separate file for each agent added. file named hostname_client.keys
-		# and saved to /tmp/ossec_keys/
+		# and saved to ./ossec_keys/
 		
 		
-		filename = "/tmp/ossec_keys/" + agentID[1] + "_client.keys"
+		filename = "./ossec_keys/" + agentID[1] + "_client.keys"
 		f = open(filename, 'w')
 		f.write(key + "\n")
 		f.close()
 
 	# Writes all agents in the DB to a file
-	print "[ ] Writing all agents to file /tmp/ossec_keys/all_agents.txt"	
+	print "[ ] Writing all agents to file ./ossec_keys/all_agents.txt"	
 	allAgents = subprocess.check_output(["/var/ossec/bin/manage_agents", "-l"]);
-	f = open("/tmp/ossec_keys/all_agents.txt", "w")
+	f = open("./ossec_keys/all_agents.txt", "w")
 	f.write(allAgents)
 	f.close()
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 	#Cleanup
 	subprocess.check_output(['rm', '/var/ossec/tmp/bulk_clients'])
 
-	print "[ ] Script complete. Files located in /tmp"
+	print "[ ] Script complete. Files located in ./ossec_keys"
 		
 	
 
